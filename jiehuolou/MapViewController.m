@@ -55,10 +55,15 @@
     CGRect rect = CGRectMake(0,100 , self.view.bounds.size.width, self.view.bounds.size.height);
     _mapView = [[BMKMapView alloc]initWithFrame:rect];
     [self.view addSubview:_mapView];
+    //地图类型是标准类型：2D的
     _mapView.mapType = BMKMapTypeStandard;
+    //是否显示小圆点
     _mapView.showsUserLocation = YES;
+    //地图的显示范围
     BMKCoordinateRegion region;
+    //显示中心
     region.center = _userLocation.location.coordinate;
+    //经纬的范围
     region.span.latitudeDelta = 0.1;
     region.span.longitudeDelta = 0.2;
     _mapView.region = region;
@@ -66,12 +71,16 @@
 
 - (void)getLoaction
 {
+    //初始化
     _locService = [[BMKLocationService alloc]init];
     _locService.delegate = self;
+    //开启
     [_locService startUserLocationService];
+    //这里要先关闭在开启
     _mapView.showsUserLocation = NO;
     _mapView.userTrackingMode = BMKUserTrackingModeFollow;
     _mapView.showsUserLocation = YES;
+    //定位获得的地理位置
     _userLocation = _locService.userLocation;
 }
 - (void)confofflineMap
@@ -92,9 +101,6 @@
 {
     if (pointAnnotation == nil) {
         pointAnnotation = [[BMKPointAnnotation alloc]init];
-        CLLocationCoordinate2D coor;
-        coor.latitude = 31;
-        coor.longitude = 120;
         pointAnnotation.coordinate = coordinate;
         pointAnnotation.title = @"test";
         pointAnnotation.subtitle = @"此Annotation可拖拽!";
@@ -124,6 +130,7 @@
 {
             NSLog(@"didUpdateUserLocation lat %f,long %f",userLocation.location.coordinate.latitude,userLocation.location.coordinate.longitude);
     [_mapView updateLocationData:userLocation];
+    //不停止定位的话会一直在定位
     [_locService stopUserLocationService];
 }
 /**
@@ -157,6 +164,7 @@
     CLLocationCoordinate2D coor;
     coor.latitude = 31;
     coor.longitude = 120;
+    //添加标注需要在viewDidAppear或者更之后进行
     [self addPointAnnotation:coor];
 }
 - (void)onGetOfflineMapState:(int)type withState:(int)state
@@ -166,6 +174,7 @@
 // 根据anntation生成对应的View
 - (BMKAnnotationView *)mapView:(BMKMapView *)mapView viewForAnnotation:(id <BMKAnnotation>)annotation
 {
+    //这玩意儿就是大头针的配置
     BMKPinAnnotationView *annotationView;
     //普通annotation
     if ([annotation isKindOfClass:[BMKPointAnnotation class]]) {
@@ -184,6 +193,7 @@
             //设置弹出view
             UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 20, 20)];
             view.backgroundColor = [UIColor redColor];
+            //paopaoView是点击大头针之后显示的view
             annotationView.paopaoView = [[BMKActionPaopaoView alloc]initWithCustomView:view];
         }
         return annotationView;
@@ -199,13 +209,12 @@
 }
 
 - (void)mapView:(BMKMapView *)mapView onClickedMapBlank:(CLLocationCoordinate2D)coordinate {
-//    [self addPointAnnotation:coordinate];
     NSLog(@"map view: click blank");
 }
-//
-//- (void)mapview:(BMKMapView *)mapView onDoubleClick:(CLLocationCoordinate2D)coordinate {
-//    NSLog(@"map view: double click");
-//}
+
+- (void)mapview:(BMKMapView *)mapView onDoubleClick:(CLLocationCoordinate2D)coordinate {
+    NSLog(@"map view: double click");
+}
 
 
 @end
